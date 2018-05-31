@@ -23,6 +23,7 @@ def talker():
     rospy.init_node('simple_test')
     
     takeoff()
+    # TODO: move in dead reckoning
     rospy.sleep(5)
     land()
 
