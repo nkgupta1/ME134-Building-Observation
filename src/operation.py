@@ -33,28 +33,31 @@ class Controller():
         self.takeoff()
 
         rospy.loginfo('Giving control to PID')
-        self.PID_x = PID()
-        self.PID_y = PID()
-        self.PID_z = PID()
+        self.PID_x = PID.PID(P=.2)
+        self.PID_y = PID.PID(P=.2)
+        self.PID_z = PID.PID(SetPoint=2,P=1)
 
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(5)
 
         count = 0
 
         while (1):
 
-            if count >= 10:
+            if count >= 100:
                 break
 
-            self.PID_x.update(self.pose.x)
-            self.PID_y.update(self.pose.y)
-            self.PID_z.update(self.pose.z)
+            self.PID_x.update(self.position.x)
+            self.PID_y.update(self.position.y)
+            self.PID_z.update(self.position.z)
 
-            vx = self.PID_x.output            
-            vy = self.PID_y.output            
-            vz = self.PID_z.output            
+            vx = self.PID_x.output
+            vy = self.PID_y.output
+            # vx = 0; vy = 0;
+            vz = self.PID_z.output
 
-            twist = empty_twist()
+            rospy.loginfo('%5.3f %5.3f %5.3f'%(vx,vy,vz))
+
+            twist = self.empty_twist()
             twist.linear.x = vx
             twist.linear.y = vy
             twist.linear.z = vz
@@ -67,7 +70,7 @@ class Controller():
 
         # move(direct=(0,0,1), t=1)
 
-        land()
+        self.land()
         
 
     # def move(direct=(0,0,0), t=0):
@@ -107,19 +110,20 @@ class Controller():
 
     def shutdown(self):
         rospy.loginfo("Stop Bebop")
-        self.cmd_vel.publish(Twist())
+        self.cmd_vel_t.publish(Twist())
         self.land()
-        rospy.sleep(1)
+        # rospy.sleep(1)
 
     def odom_callback(self, data):
         pose = data.pose.pose
         vel  = data.twist.twist.linear
 
-        self.pose = pose
+        self.position = pose.position
 
-        rospy.loginfo('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f'%(rospy.get_time(),pose.position.x, pose.position.y, pose.position.z, vel.x, vel.y, vel.z))
+        rospy.loginfo('ODOM: %5.3f,%5.3f,%5.3f,'%(pose.position.x, pose.position.y, pose.position.z))
+        # rospy.loginfo('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f'%(rospy.get_time(),pose.position.x, pose.position.y, pose.position.z, vel.x, vel.y, vel.z))
 
-    def empty_twist():
+    def empty_twist(self):
         twist = Twist()
 
         twist.linear.x = 0
