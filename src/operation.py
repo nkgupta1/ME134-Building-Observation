@@ -11,6 +11,16 @@ import PID
 
 import time
 
+"""
+TODO
+    grad initial ODOM and use as reference frame
+    parameter tuning for PID
+    add differentiation to PID
+    log odom and velocity to file
+    create plot from odom and velocity
+    maybe turn off PID controller when we are in vicinity of goal
+"""
+
 class Controller():
     def __init__(self):
         # initalize
