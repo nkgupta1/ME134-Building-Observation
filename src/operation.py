@@ -7,6 +7,7 @@ from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 
+import PID
 
 import time
 
@@ -31,29 +32,62 @@ class Controller():
 
         self.takeoff()
 
-        move(direct=(0,0,1), t=1)
+        rospy.loginfo('Giving control to PID')
+        self.PID_x = PID()
+        self.PID_y = PID()
+        self.PID_z = PID()
+
+        rate = rospy.Rate(10)
+
+        count = 0
+
+        while (1):
+
+            if count >= 10:
+                break
+
+            self.PID_x.update(self.pose.x)
+            self.PID_y.update(self.pose.y)
+            self.PID_z.update(self.pose.z)
+
+            vx = self.PID_x.output            
+            vy = self.PID_y.output            
+            vz = self.PID_z.output            
+
+            twist = empty_twist()
+            twist.linear.x = vx
+            twist.linear.y = vy
+            twist.linear.z = vz
+
+            self.cmd_vel_t.publish(twist)
+
+            count += 1
+            rate.sleep()
+
+
+        # move(direct=(0,0,1), t=1)
 
         land()
         
 
-    def move(direct=(0,0,0), t=0):
-        # need to refresh the command on the periodic interval
-        rate = rospy.Rate(10) # 10 Hz
-        t0 = time.time()
+    # def move(direct=(0,0,0), t=0):
+    #     # need to refresh the command on the periodic interval
+    #     rate = rospy.Rate(10) # 10 Hz
+    #     t0 = time.time()
 
         
-        rospy.loginfo('Moving')
-        while (time.time() - t0 < t):
-            twist = empty_twist()
-            twist.linear.x = direct[0]
-            twist.linear.y = direct[1]
-            twist.linear.z = direct[2]
+    #     rospy.loginfo('Moving')
+    #     while (time.time() - t0 < t):
+    #         twist = empty_twist()
+    #         twist.linear.x = direct[0]
+    #         twist.linear.y = direct[1]
+    #         twist.linear.z = direct[2]
             
-            cmd_vel_t.publish(twist)
-            rate.sleep()
+    #         self.cmd_vel_t.publish(twist)
+    #         rate.sleep()
 
-        twist = empty_twist()
-        self.cmd_vel_t.publish(twist)
+    #     twist = empty_twist()
+    #     self.cmd_vel_t.publish(twist)
 
     def takeoff(self):
         rospy.loginfo("Taking off")
@@ -80,6 +114,8 @@ class Controller():
     def odom_callback(self, data):
         pose = data.pose.pose
         vel  = data.twist.twist.linear
+
+        self.pose = pose
 
         rospy.loginfo('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f'%(rospy.get_time(),pose.position.x, pose.position.y, pose.position.z, vel.x, vel.y, vel.z))
 

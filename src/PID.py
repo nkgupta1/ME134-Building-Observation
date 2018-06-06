@@ -1,24 +1,20 @@
 #!/usr/bin/env python
 
-## Simple talker demo that published std_msgs/Strings messages
-## to the 'chatter' topic
+import time
 
-import rospy
-from std_msgs.msg import String
-from geometry_msgs.msg import PoseStamped, Point, Pose, Quaternion, Twist, Vector3
-from nav_msgs.msg import Odometry
-
-# Sourced from http://ivmech.github.io/ivPID/"""
+# Sourced from http://ivmech.github.io/ivPID/
 class PID:
 	"""PID Controller"""
 
-	def __init__(self, P=0.2, I=0.0, D=0.0):
+	def __init__(self, SetPoint=0.0, P=0.2, I=0.0, D=0.0):
 		self.Kp = P
 		self.Ki = I
 		self.Kd = D
 
+		self.SetPoint = SetPoint
+
 		self.sample_time = 0.00
-		self.current_time = rospy.Time.now()
+		self.current_time = time.time()
 		self.last_time = self.current_time
 		self.clear()
 
@@ -39,7 +35,7 @@ class PID:
 		"""Calculates PID value for given reference feedback
 		math: u(t) = K_p e(t) + K_i \int_{0}^{t} e(t)dt + K_d {de}/{dt}"""
 		error = self.SetPoint - feedback_value
-		self.current_time = rospy.Time.now()
+		self.current_time = time.time()
 		delta_time = self.current_time - self.last_time
 		delta_error = error - self.last_error
 
