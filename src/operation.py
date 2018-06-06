@@ -5,81 +5,101 @@ from std_msgs.msg import String
 from std_msgs.msg import Empty
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+
 
 import time
 
+class Controller():
+    def __init__(self):
+        # initalize
+        rospy.init_node('controller')
 
-def takeoff(takeoff_t):
-    print "Taking off"
-    takeoff_msg = Empty()
-    takeoff_t.publish(takeoff_msg)
-    rospy.sleep(1)
+        # What function to call when you ctrl + c    
+        rospy.on_shutdown(self.shutdown)
 
-def land(land_t):
-    print "Landing"
-    land_msg = Empty()
-    land_t.publish(land_msg)
-    rospy.sleep(1)
-    
-def empty_twist():
-    twist = Twist()
+        # Create the topics we need
+        rospy.loginfo("Creating Topics")
+        self.takeoff_t = rospy.Publisher('/bebop/takeoff', Empty, queue_size=10)
+        rospy.sleep(1)
+        self.cmd_vel_t = rospy.Publisher('/bebop/cmd_vel', Twist, queue_size=10)
+        rospy.sleep(1)
+        self.land_t = rospy.Publisher('/bebop/land', Empty, queue_size=10)
+        rospy.sleep(1)
+        self.odom_t = rospy.Subscriber('/bebop/odom', Odometry, self.odom_callback)
+        rospy.sleep(5)
 
-    twist.linear.x = 0
-    twist.linear.y = 0
-    twist.linear.z = 0
+        self.takeoff()
 
-    twist.angular.x = 0
-    twist.angular.y = 0
-    twist.angular.z = 0
+        move(direct=(0,0,1), t=1)
 
-    return twist
-
-def move(cmd_vel_t, direct=(0,0,0), t=0):
-    # need to refresh the command on the periodic interval
-    rate = rospy.Rate(10) # 10 Hz
-    t0 = time.time()
-
-    
-    print "Moving up"
-    while (time.time() - t0 < t):
-        twist = empty_twist()
-        twist.linear.x = direct[0]
-        twist.linear.y = direct[1]
-        twist.linear.z = direct[2]
+        land()
         
-        cmd_vel_t.publish(twist)
-        rate.sleep()
 
-    twist = empty_twist()
-    cmd_vel_t.publish(twist)
+    def move(direct=(0,0,0), t=0):
+        # need to refresh the command on the periodic interval
+        rate = rospy.Rate(10) # 10 Hz
+        t0 = time.time()
 
-def controller():
+        
+        rospy.loginfo('Moving')
+        while (time.time() - t0 < t):
+            twist = empty_twist()
+            twist.linear.x = direct[0]
+            twist.linear.y = direct[1]
+            twist.linear.z = direct[2]
+            
+            cmd_vel_t.publish(twist)
+            rate.sleep()
 
-    rospy.init_node('simple_test')
+        twist = empty_twist()
+        self.cmd_vel_t.publish(twist)
 
-    print "creating topics"
-    takeoff_t = rospy.Publisher('/bebop/takeoff', Empty, queue_size=10)
-    rospy.sleep(1)
-    cmd_vel_t = rospy.Publisher('/bebop/cmd_vel', Twist, queue_size=10)
-    rospy.sleep(1)
-    land_t = rospy.Publisher('/bebop/land', Empty, queue_size=10)
-    rospy.sleep(1)
+    def takeoff(self):
+        rospy.loginfo("Taking off")
+        takeoff_msg = Empty()
+        self.takeoff_t.publish(takeoff_msg)
+
+        # Let the drone actually take off
+        rospy.loginfo("Pausing")
+        rospy.sleep(5)
+
+    def land(self):
+        rospy.loginfo("Landing")
+        land_msg = Empty()
+        self.land_t.publish(land_msg)
+        rospy.sleep(1)
+
+
+    def shutdown(self):
+        rospy.loginfo("Stop Bebop")
+        self.cmd_vel.publish(Twist())
+        self.land()
+        rospy.sleep(1)
+
+    def odom_callback(self, data):
+        pose = data.pose.pose
+        vel  = data.twist.twist.linear
+
+        rospy.loginfo('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f'%(rospy.get_time(),pose.position.x, pose.position.y, pose.position.z, vel.x, vel.y, vel.z))
+
+    def empty_twist():
+        twist = Twist()
+
+        twist.linear.x = 0
+        twist.linear.y = 0
+        twist.linear.z = 0
+
+        twist.angular.x = 0
+        twist.angular.y = 0
+        twist.angular.z = 0
+
+        return twist
     
-    rospy.sleep(5)
-    
-    takeoff(takeoff_t)
-
-    # Let the drone actually take off
-    print "Pausing"
-    rospy.sleep(5)
-
-    move(cmd_vel_t, direct=(0,0,1), t=1)
-
-    land(land_t)
 
     
 if __name__ == '__main__':
     try:
-        controller()
+        Controller()
     except rospy.ROSInterruptException:
-        pass
+        rospy.loginfo("Node Failed")
