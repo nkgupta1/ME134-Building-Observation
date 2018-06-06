@@ -34,6 +34,25 @@ def empty_twist():
 
     return twist
 
+def move(cmd_vel_t, direct=(0,0,0), t=0):
+    # need to refresh the command on the periodic interval
+    rate = rospy.Rate(10) # 10 Hz
+    t0 = time.time()
+
+    
+    print "Moving up"
+    while (time.time() - t0 < t):
+        twist = empty_twist()
+        twist.linear.x = direct[0]
+        twist.linear.y = direct[1]
+        twist.linear.z = direct[2]
+        
+        cmd_vel_t.publish(twist)
+        rate.sleep()
+
+    twist = empty_twist()
+    cmd_vel_t.publish(twist)
+
 def controller():
 
     rospy.init_node('simple_test')
@@ -54,22 +73,8 @@ def controller():
     print "Pausing"
     rospy.sleep(5)
 
-    # need to refresh the command on the periodic interval
-    rate = rospy.Rate(10) # 10 Hz
-    t0 = time.time()
+    move(cmd_vel_t, direct=(0,0,1), t=1)
 
-    
-    print "Moving up"
-    while (time.time() - t0 < 2):
-        twist = empty_twist()
-        twist.linear.z = 1
-        
-        cmd_vel_t.publish(twist)
-        rate.sleep()
-
-
-
-    rospy.sleep(2)
     land(land_t)
 
     
