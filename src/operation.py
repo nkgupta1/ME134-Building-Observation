@@ -81,26 +81,6 @@ class Controller():
         # move(direct=(0,0,1), t=1)
 
         self.land()
-        
-
-    # def move(direct=(0,0,0), t=0):
-    #     # need to refresh the command on the periodic interval
-    #     rate = rospy.Rate(10) # 10 Hz
-    #     t0 = time.time()
-
-        
-    #     rospy.loginfo('Moving')
-    #     while (time.time() - t0 < t):
-    #         twist = empty_twist()
-    #         twist.linear.x = direct[0]
-    #         twist.linear.y = direct[1]
-    #         twist.linear.z = direct[2]
-            
-    #         self.cmd_vel_t.publish(twist)
-    #         rate.sleep()
-
-    #     twist = empty_twist()
-    #     self.cmd_vel_t.publish(twist)
 
     def takeoff(self):
         rospy.loginfo("Taking off")
