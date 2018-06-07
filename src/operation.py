@@ -13,7 +13,6 @@ import time
 
 """
 TODO
-    grad initial ODOM and use as reference frame
     parameter tuning for PID
     add differentiation to PID
     log odom and velocity to file
@@ -48,19 +47,18 @@ class Controller():
 
         self.takeoff()
 
+        self.update_goal(0, 0, 2)
+
         rospy.loginfo('Giving control to PID')
-        self.PID_x = PID.PID(P=.2)
-        self.PID_y = PID.PID(P=.2)
-        self.PID_z = PID.PID(SetPoint=2,P=1)
+        self.PID_x = PID.PID(SetPoint=self.goal_x, P=.4)
+        self.PID_y = PID.PID(SetPoint=self.goal_y, P=.4)
+        self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
 
         rate = rospy.Rate(5)
 
         count = 0
 
         while (1):
-
-            if count >= 100:
-                break
 
             self.PID_x.update(self.x)
             self.PID_y.update(self.y)
@@ -82,10 +80,12 @@ class Controller():
             count += 1
             rate.sleep()
 
-
-        # move(direct=(0,0,1), t=1)
-
         self.land()
+
+    def update_goal(self, x=0, y=0, z=0):
+        self.goal_x = x
+        self.goal_y = y
+        self.goal_z = z
 
     def takeoff(self):
         rospy.loginfo("Taking off")
