@@ -16,7 +16,6 @@ TODO
     parameter tuning for PID
     add differentiation to PID
     log odom and velocity to file
-    create plot from odom and velocity
     maybe turn off PID controller when we are in vicinity of goal
 """
 
@@ -30,6 +29,9 @@ class Controller():
         self.x0 = 0
         self.y0 = 0
         self.z0 = 0
+
+        # for logging data
+        self.log_file = open('bebop.csv', 'w')
 
         # What function to call when you ctrl + c    
         rospy.on_shutdown(self.shutdown)
@@ -83,6 +85,7 @@ class Controller():
         self.land()
 
     def update_goal(self, x=0, y=0, z=0):
+        self.log_file.write('0, %5.3f, %5.3f, %5.3f, %5.3f'%(rospy.get_time(), x, y, y))
         self.goal_x = x
         self.goal_y = y
         self.goal_z = z
@@ -110,12 +113,12 @@ class Controller():
         # rospy.sleep(1)
 
     def odom_callback(self, data):
-        pose = data.pose.pose
-        vel  = data.twist.twist.linear
+        pos = data.pose.pose.position
+        ve  = data.twist.twist.linear
 
-        self.x = pose.position.x - self.x0
-        self.y = pose.position.y - self.y0
-        self.z = pose.position.z - self.z0
+        self.x = pos.x - self.x0
+        self.y = pos.y - self.y0
+        self.z = pos.z - self.z0
 
         if (self.first_pos):
             self.x0 = self.x
@@ -124,7 +127,7 @@ class Controller():
             rospy.loginfo('SETTING FRAME ORIGIN TO: %5.3f,%5.3f,%5.3f'%(self.x, self.y, self.z))
             self.first_pos = False
 
-
+        self.log_file.write('1, %5.3f, %5.3f, %5.3f, %5.3f'%(rospy.get_time(), self.x, self.y, self.z))
         rospy.loginfo('ODOM: %5.3f,%5.3f,%5.3f'%(self.x, self.y, self.z))
         # rospy.loginfo('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f'%(rospy.get_time(),pose.position.x, pose.position.y, pose.position.z, vel.x, vel.y, vel.z))
 
