@@ -26,6 +26,12 @@ class Controller():
         # initalize
         rospy.init_node('controller')
 
+        # inital coordinates for odom
+        self.first_pos = True
+        self.x0 = 0
+        self.y0 = 0
+        self.z0 = 0
+
         # What function to call when you ctrl + c    
         rospy.on_shutdown(self.shutdown)
 
@@ -56,13 +62,12 @@ class Controller():
             if count >= 100:
                 break
 
-            self.PID_x.update(self.position.x)
-            self.PID_y.update(self.position.y)
-            self.PID_z.update(self.position.z)
+            self.PID_x.update(self.x)
+            self.PID_y.update(self.y)
+            self.PID_z.update(self.z)
 
             vx = self.PID_x.output
             vy = self.PID_y.output
-            # vx = 0; vy = 0;
             vz = self.PID_z.output
 
             rospy.loginfo('%5.3f %5.3f %5.3f'%(vx,vy,vz))
@@ -108,9 +113,19 @@ class Controller():
         pose = data.pose.pose
         vel  = data.twist.twist.linear
 
-        self.position = pose.position
+        self.x = pose.position.x - self.x0
+        self.y = pose.position.y - self.y0
+        self.z = pose.position.z - self.z0
 
-        rospy.loginfo('ODOM: %5.3f,%5.3f,%5.3f,'%(pose.position.x, pose.position.y, pose.position.z))
+        if (self.first_pos):
+            self.x0 = self.x
+            self.y0 = self.y
+            self.z0 = self.z
+            rospy.loginfo('SETTING FRAME ORIGIN TO: %5.3f,%5.3f,%5.3f'%(self.x, self.y, self.z))
+            self.first_pos = False
+
+
+        rospy.loginfo('ODOM: %5.3f,%5.3f,%5.3f'%(self.x, self.y, self.z))
         # rospy.loginfo('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f'%(rospy.get_time(),pose.position.x, pose.position.y, pose.position.z, vel.x, vel.y, vel.z))
 
     def empty_twist(self):
