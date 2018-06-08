@@ -1,0 +1,60 @@
+1528444436.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.06, I=.2)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.06, I=.2)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=.5)
+1528444587.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.06, I=.1)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.06, I=.1)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=.5)
+1528444718.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.06, I=.01)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.06, I=.01)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=.5)
+1528445635.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.12, I=.001)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.12, I=.001)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=.5)
+1528445838.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.24, I=.002)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.24, I=.002)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=.5)
+1528445929.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.24, I=.004)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.24, I=.004)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=.5)
+1528446041.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.24, I=.004)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.24, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+1528446300.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.24, I=.003)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.36, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+1528446520.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.3, I=.004)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.4, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+1528447377.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.35, I=.003)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.36, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+1528447491.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.35, I=.003)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.36, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+1528447878.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.35, I=.003)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.36, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+1528448564.png
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.35, I=.003)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.36, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+1528449453.png
+    1:20 operation, 
+    6.0m +x drift
+    0.3m +y drift
+    self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.35, I=.003)
+    self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.36, I=.006)
+    self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
+
