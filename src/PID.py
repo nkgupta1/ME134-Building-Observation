@@ -29,7 +29,7 @@ class PID:
 
         # Windup Guard
         self.int_error = 0.0
-        self.windup_guard = 20.0
+        self.windup_guard = 4
         self.output = 0.0
 
     def update(self, feedback_value):
@@ -45,8 +45,10 @@ class PID:
             self.ITerm += error * delta_time
 
             if (self.ITerm < -self.windup_guard):
+                print 'capping I'
                 self.ITerm = -self.windup_guard
             elif (self.ITerm > self.windup_guard):
+                print 'capping I'
                 self.ITerm = self.windup_guard
 
             self.DTerm = 0.0
