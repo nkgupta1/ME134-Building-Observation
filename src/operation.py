@@ -49,11 +49,11 @@ class Controller():
 
         self.takeoff()
 
-        self.update_goal(0, 0, 2)
+        self.update_goal(5, -3, 7)
 
         rospy.loginfo('Giving control to PID')
-        self.PID_x = PID.PID(SetPoint=self.goal_x, P=.4)
-        self.PID_y = PID.PID(SetPoint=self.goal_y, P=.4)
+        self.PID_x = PID.PID(SetPoint=self.goal_x, P=.085, D=.35, I=.003)
+        self.PID_y = PID.PID(SetPoint=self.goal_y, P=.085, D=.36, I=.006)
         self.PID_z = PID.PID(SetPoint=self.goal_z, P=1)
 
         rate = rospy.Rate(5)
@@ -61,6 +61,8 @@ class Controller():
         count = 0
 
         while (1):
+            if count >= 55*5:
+                break
 
             self.PID_x.update(self.x)
             self.PID_y.update(self.y)
@@ -82,10 +84,45 @@ class Controller():
             count += 1
             rate.sleep()
 
+
+        count = 0
+        rospy.loginfo('Going Home')
+        self.update_goal(0, 0, 1)
+
+        self.PID_x.SetPoint = self.goal_x
+        self.PID_y.SetPoint = self.goal_y
+        self.PID_z.SetPoint = self.goal_z
+
+
+        while (1):
+            if count >= 25*5:
+                break
+
+            self.PID_x.update(self.x)
+            self.PID_y.update(self.y)
+            self.PID_z.update(self.z)
+
+            vx = self.PID_x.output
+            vy = self.PID_y.output
+            vz = self.PID_z.output
+
+            rospy.loginfo('%5.3f %5.3f %5.3f'%(vx,vy,vz))
+
+            twist = self.empty_twist()
+            twist.linear.x = vx
+            twist.linear.y = vy
+            twist.linear.z = vz
+
+            self.cmd_vel_t.publish(twist)
+
+            count += 1
+            rate.sleep()
+
+
         self.land()
 
     def update_goal(self, x=0, y=0, z=0):
-        self.log_file.write('0, %5.3f, %5.3f, %5.3f, %5.3f'%(rospy.get_time(), x, y, y))
+        self.log_file.write('0, %5.3f, %5.3f, %5.3f, %5.3f\n'%(rospy.get_time(), x, y, z))
         self.goal_x = x
         self.goal_y = y
         self.goal_z = z
@@ -110,24 +147,24 @@ class Controller():
         rospy.loginfo("Stop Bebop")
         self.cmd_vel_t.publish(Twist())
         self.land()
-        # rospy.sleep(1)
+        rospy.sleep(1)
 
     def odom_callback(self, data):
         pos = data.pose.pose.position
         ve  = data.twist.twist.linear
 
+        if (self.first_pos):
+            self.x0 = pos.x
+            self.y0 = pos.y
+            self.z0 = pos.z
+            rospy.loginfo('SETTING FRAME ORIGIN TO: %5.3f,%5.3f,%5.3f'%(pos.x, pos.y, pos.z))
+            self.first_pos = False
+
         self.x = pos.x - self.x0
         self.y = pos.y - self.y0
         self.z = pos.z - self.z0
 
-        if (self.first_pos):
-            self.x0 = self.x
-            self.y0 = self.y
-            self.z0 = self.z
-            rospy.loginfo('SETTING FRAME ORIGIN TO: %5.3f,%5.3f,%5.3f'%(self.x, self.y, self.z))
-            self.first_pos = False
-
-        self.log_file.write('1, %5.3f, %5.3f, %5.3f, %5.3f'%(rospy.get_time(), self.x, self.y, self.z))
+        self.log_file.write('1, %5.3f, %5.3f, %5.3f, %5.3f\n'%(rospy.get_time(), self.x, self.y, self.z))
         rospy.loginfo('ODOM: %5.3f,%5.3f,%5.3f'%(self.x, self.y, self.z))
         # rospy.loginfo('%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f,%5.3f'%(rospy.get_time(),pose.position.x, pose.position.y, pose.position.z, vel.x, vel.y, vel.z))
 
