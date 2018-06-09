@@ -42,12 +42,15 @@ with open(odom_data, 'r+') as cvsfile:
 
 # Assign the values in data to either goals or odom
 for x in data:
+    # if the ID value is 0, it is a goal
     if x[0] == 0:
         if len(x) != 5:
             continue
         x_goal.append(x[2])
         y_goal.append(x[3])
         z_goal.append(x[4])
+        
+    # if the ID value is 1, it is an odometry measurement
     elif x[0] == 1:
         if len(x) != 5:
             continue

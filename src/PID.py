@@ -19,6 +19,10 @@ class PID:
         self.current_time = time.time()
         self.last_time = self.current_time
 
+    def clear_int_term(self):
+        self.ITerm = 0.0
+        
+
     def clear(self):
         """Clears PID computations and coefficients"""
         self.SetPoint = 0.0
